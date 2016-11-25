@@ -102,10 +102,10 @@ void setup() {
   lcd.print(filename);
   lcd.display();
   //**********************************************
-  //Headers in Excell file
-  logfile.println(F("Lattitude (Deg),Longitude (Deg),Altitude,Month,Day,Year,Hour,Minute,Second,Millisecond,Humidity,Temp,Pressure,Wind Speed,Wind Direction,Millis"));
+  //Headers in Excel file
+  logfile.println(F("Month,Day,Year,Hour,Minute,Second,Millisecond,Sat Count,Humidity,Temperature,Pressure,Wind Speed,Wind Direction,Start Time"));
 #if ECHO_TO_SERIAL
-  Serial.println("Lattitude (Deg),Longitude (Deg),Altitude,Month,Day,Year,Hour,Minute,Second,Millisecond,Humidity,Temp,Pressure,Wind Speed,Wind Direction,Millis");
+  Serial.println("Month,Day,Year,Hour,Minute,Second,Millisecond,Sat Count,Humidity,Temperature,Pressure,Wind Speed,Wind Direction,Start Time");
 #endif //ECHO_TO_SERIAL
   delay(1000);
   Wire.begin(8);                // join i2c bus with address #8

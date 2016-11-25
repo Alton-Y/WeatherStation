@@ -132,6 +132,9 @@ void loop() {         //No delays in loop pls kthx
     byte p0 = byte(pressure/1000.00);
     byte p1 = byte((pressure-(p0*1000.00))/10.00);
     byte p2 = byte(pressure-(p0*1000.00)-(p1*10.00));
+
+    byte ms0 = byte(GPS.milliseconds/100.00);
+    byte ms1 = byte(GPS.milliseconds-(ms0*100.00));
     
   
     
@@ -141,8 +144,17 @@ void loop() {         //No delays in loop pls kthx
     Serial.print("\t");
     Serial.print((p1)); 
     Serial.print("\t");
-    Serial.println((p2)); 
-    
+    Serial.print((p2));
+    Serial.print("\t");
+    Serial.print(GPS.satellites);
+    Serial.print("\t MS ");
+    Serial.print(GPS.milliseconds); 
+    Serial.print("\t");
+    Serial.print(ms0);
+    Serial.print("\t"); 
+    Serial.println(ms1);
+
+        
     IntToByte(pressure, pressureParts, 100);
     IntToByte(GPS.milliseconds, GPSmilli, 1);
     byte latitude = (byte)(GPS.latitude, 1);
@@ -159,13 +171,15 @@ void loop() {         //No delays in loop pls kthx
     Wire.write(GPS.hour);     //7
     Wire.write(GPS.minute);   //8
     Wire.write(GPS.seconds);  //9
-    Wire.write(GPS.milliseconds); //10
-    Wire.write(humid);        //11
-    Wire.write(tempParts0);     //12
-    Wire.write(tempParts1);  //13
-    Wire.write(p0);        //14
-    Wire.write(p1);        //15
-    Wire.write(p2);        //16
+    Wire.write(ms0);          //10
+    Wire.write(ms1);          //11
+    Wire.write(humid);        //12
+    Wire.write(tempParts0);   //13
+    Wire.write(tempParts1);   //14
+    Wire.write(p0);           //15
+    Wire.write(p1);           //16
+    Wire.write(p2);           //17
+    Wire.write(GPS.satellites);           //18
     Wire.endTransmission();    // stop transmitting
   }
   //**************************************************************************************

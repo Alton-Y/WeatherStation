@@ -139,16 +139,19 @@ void receiveEvent(int howMany) {      //Read constantly....
   byte x7 = Wire.read();    // Hour
   byte x8 = Wire.read();    // Minute
   byte x9 = Wire.read();    // Second
-  byte x10 = Wire.read();   // Millisecond
+  byte ms0 = Wire.read();   // Millisecond 1
+  byte ms1 = Wire.read();   // Millisecond 2
   byte x11 = Wire.read();  // Humidity
   byte x12 = Wire.read();   // Temperature 1 
   byte x13 = Wire.read();   // Temperature 2 
   byte x14 = Wire.read();    // Pressure 1
   byte x15 = Wire.read();    // Pressure 2
   byte x16 = Wire.read();   // Pressure 3
+  byte x17 = Wire.read();   // GPS SAT Count
 
   float temp = x12+(x13)/100.00;
   float pressure = x14*1000.00+x15*10.00+x16;
+  float x10 = ms0*100.00+ms1;
   
   getWindSpeed();
   getWindDirection();
@@ -176,6 +179,8 @@ void receiveEvent(int howMany) {      //Read constantly....
   logfile.print(x9);    //Second
   logfile.print(",");
   logfile.print(x10);    //Millisecond
+  logfile.print(",");
+  logfile.print(x17);    //SAT Count
   logfile.print(",");
   logfile.print(x11); //Humidity
   logfile.print(",");
@@ -208,6 +213,8 @@ void receiveEvent(int howMany) {      //Read constantly....
   Serial.print(x9);
   Serial.print(":");
   Serial.print(x10);
+  Serial.print(" ,\t SAT");
+  Serial.print(x17);
   Serial.print(" ,\t");
   Serial.print(x11);
   Serial.print(" ,\t");

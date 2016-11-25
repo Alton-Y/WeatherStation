@@ -6,10 +6,10 @@
 //*************for logging
 #include <SPI.h>
 #include <SD.h>
-#include "RTClib.h"
+//#include "RTClib.h"
 
 //Anemometer
-#include "TimerOne.h" // Timer Interrupt set to 2 second for read sensors 
+//#include "TimerOne.h" // Timer Interrupt set to 2 second for read sensors 
 #include <math.h>
 #include <LiquidCrystal.h>
 
@@ -53,6 +53,7 @@ void error(char *str)
 
 //********************************************SETUP*************************************************************
 void setup() {
+  Serial.begin(9600);           // start serial for output
   //For LCD
   // set up the LCD's number of columns and rows:
   lcd.begin(16, 2);
@@ -61,14 +62,12 @@ void setup() {
   lcd.setCursor(0, 1);
   lcd.print("    Station   :)");
   lcd.display();
-  delay(5000);
-  lcd.clear();
-  Wire.begin(8);                // join i2c bus with address #8
-  Wire.onReceive(receiveEvent); // register event
-  Serial.begin(9600);           // start serial for output
+  delay(1000);
+  lcd.clear();  
   pinMode(button, OUTPUT);
   digitalWrite(button, LOW);
   pinMode(button, INPUT);
+  
   //*************************************For logging
   // initialize the SD card
   Serial.print("Initializing SD card...");
@@ -103,13 +102,15 @@ void setup() {
   lcd.print(filename);
   lcd.display();
   //**********************************************
-
   //Headers in Excell file
   logfile.println(F("Lattitude (Deg),Longitude (Deg),Altitude,Month,Day,Year,Hour,Minute,Second,Millisecond,Humidity,Temp,Pressure,Wind Speed,Wind Direction,Millis"));
 #if ECHO_TO_SERIAL
   Serial.println("Lattitude (Deg),Longitude (Deg),Altitude,Month,Day,Year,Hour,Minute,Second,Millisecond,Humidity,Temp,Pressure,Wind Speed,Wind Direction,Millis");
 #endif //ECHO_TO_SERIAL
-
+  delay(1000);
+  Wire.begin(8);                // join i2c bus with address #8
+  Wire.onReceive(receiveEvent); // register event
+  
   pinMode(WindVanePin, OUTPUT);
   digitalWrite(WindVanePin, LOW);
   pinMode(WindVanePin, INPUT);
@@ -122,30 +123,33 @@ void setup() {
 //**************************************************************************************************************
 
 void loop() { //useless
+
 }
 
 //********************************************MAIN LOOP*********************************************************
 //Runs when data is received
 void receiveEvent(int howMany) {      //Read constantly....
 
-  byte x1 = Wire.read();    // Latitude
-  byte x2 = Wire.read();    // Longitude
-  byte x3 = Wire.read();    // Altitude
+  //byte x1 = Wire.read();    // Latitude
+  //byte x2 = Wire.read();    // Longitude
+  //byte x3 = Wire.read();    // Altitude
   byte x4 = Wire.read();    // Month
   byte x5 = Wire.read();    // Day
   byte x6 = Wire.read();    // Year
   byte x7 = Wire.read();    // Hour
   byte x8 = Wire.read();    // Minute
   byte x9 = Wire.read();    // Second
-  byte x10 = Wire.read();   // Millisecond 1
-  byte x11 = Wire.read();   // Millisecond 2
-  byte x12 = Wire.read();   // Humidity
-  byte x13 = Wire.read();    // Temperature 1
-  byte x14 = Wire.read();    // Temperature 2
-  byte x15 = Wire.read();   // Pressure 1
-  byte x16 = Wire.read();   // Pressure 2
-  byte x17 = Wire.read();   // Pressure 3
+  byte x10 = Wire.read();   // Millisecond
+  byte x11 = Wire.read();  // Humidity
+  byte x12 = Wire.read();   // Temperature 1 
+  byte x13 = Wire.read();   // Temperature 2 
+  byte x14 = Wire.read();    // Pressure 1
+  byte x15 = Wire.read();    // Pressure 2
+  byte x16 = Wire.read();   // Pressure 3
 
+  float temp = x12+(x13)/100.00;
+  float pressure = x14*1000.00+x15*10.00+x16;
+  
   getWindSpeed();
   getWindDirection();
   if (abs(CalDirection - LastValue) > 5) {
@@ -153,12 +157,12 @@ void receiveEvent(int howMany) {      //Read constantly....
   }
 
   //********************LOG DATA
-  logfile.print(x1);   //Latitude
-  logfile.print(",");
-  logfile.print(x2);   //Longitude
-  logfile.print(",");
-  logfile.print(x3);   //Altitude
-  logfile.print(",");
+  //logfile.print(x1);   //Latitude
+  //logfile.print(",");
+  //logfile.print(x2);   //Longitude
+  //logfile.print(",");
+  //logfile.print(x3);   //Altitude
+  //logfile.print(",");
   logfile.print(x4);    //Month
   logfile.print(",");
   logfile.print(x5);    //Day
@@ -172,16 +176,12 @@ void receiveEvent(int howMany) {      //Read constantly....
   logfile.print(x9);    //Second
   logfile.print(",");
   logfile.print(x10);    //Millisecond
-  logfile.print(x11);  //Millisecond
   logfile.print(",");
-  logfile.print(x12);   //Humidity
+  logfile.print(x11); //Humidity
   logfile.print(",");
-  logfile.print(x13);   //Temperature 1
-  //logfile.print(x14); //Temperature 2
+  logfile.print(temp);  //Temperature 1
   logfile.print(",");
-  logfile.print(x15);   //Pressure in parts
-  logfile.print(x16);
-  logfile.print(x17/100);
+  logfile.print(pressure);  //Pressure in parts
   logfile.print(",");
   logfile.print(WindSpeed);
   logfile.print(",");
@@ -189,12 +189,12 @@ void receiveEvent(int howMany) {      //Read constantly....
   logfile.print(",");
   logfile.println(millis());
 #if ECHO_TO_SERIAL      //Print to screen so we know whats going on
-  Serial.print(x1);
-  Serial.print("\t\t");
-  Serial.print(x2);
-  Serial.print("\t\t");
-  Serial.print(x3);
-  Serial.print("\t");
+  //Serial.print(x1);
+  //Serial.print("\t\t");
+  //Serial.print(x2);
+  //Serial.print("\t\t");
+  //Serial.print(x3);
+  //Serial.print("\t");
   Serial.print(x4);
   Serial.print("/");
   Serial.print(x5);
@@ -208,17 +208,13 @@ void receiveEvent(int howMany) {      //Read constantly....
   Serial.print(x9);
   Serial.print(":");
   Serial.print(x10);
-  Serial.print(x11 / 10);
   Serial.print(" ,\t");
-  Serial.print(x12);
+  Serial.print(x11);
+  Serial.print(" ,\t");
+  Serial.print(temp);
   Serial.print(",\t");
-  Serial.print(x13);
-  //Serial.print(".");
- // Serial.print(x14);
+  Serial.print(pressure);
   Serial.print(",\t");
-  Serial.print(x15);
-  Serial.print(x16);
-  Serial.print(x17/100);
   Serial.print(",    ");
   Serial.print(WindSpeed);
   Serial.print(",    ");
@@ -239,7 +235,7 @@ void receiveEvent(int howMany) {      //Read constantly....
   lcd.setCursor(9, 0);
   lcd.print((char)223);
   lcd.setCursor(12, 0);
-  lcd.print(x13);
+  lcd.print(int(temp));
   lcd.setCursor(14, 0);
   lcd.print((char)223);
   lcd.setCursor(15, 0);

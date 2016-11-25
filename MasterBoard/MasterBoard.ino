@@ -40,7 +40,7 @@ void setup() {
 
   //Configure the humidity sensor
   myHumidity.begin();
-  delay(8000); //give slave arduino time to setup SD card and file  Note this should not affect sync rate since it occours once during setup
+  delay(5000); //give slave arduino time to setup SD card and file  Note this should not affect sync rate since it occours once during setup
 
 }
 //**************************************************************************************************************
@@ -115,47 +115,57 @@ void loop() {         //No delays in loop pls kthx
     //int AmbientT = (int)(temp_h);       // convert float number to a rounded integer
     //    Serial.print("\t\t");
     //Serial.println(AmbientT); //For Debugging
-
-    //Check Pressure Sensor
-    float pressure = myPressure.readPressure();       //**change all to bytes
     Serial.print(temp_h);
     Serial.print("\t");
 
-    //    int PAtm1 = (int)(pressure / 1000);       //since pressure is usually 5 t 6 digits we split it up into two parts so the slave arduino can receive it in two parts and then stitch it togather again
-    //    pressure = pressure - 1000 * PAtm1;
-    //    int PAtm3 = (int)(pressure);
-    //    int PAtm2 = (int)(PAtm3 / 10);
-    //    PAtm3 = PAtm3 - PAtm2 * 10;
     //IntToByte(temp_h, tempParts, 1);
-    tempParts[1]=byte(temp_h);
-    tempParts[2]=byte(temp_h*100-tempParts[1]*100);
-     Serial.print(tempParts[1]);
-     Serial.print("\t");
-     Serial.println(tempParts[2]);
-    IntToByte(pressure, pressureParts, 1000);
+    byte tempParts0=byte(temp_h);
+    byte tempParts1=byte(100*(temp_h-tempParts0));
+    Serial.print(tempParts0);
+    Serial.print("\t");
+    Serial.print(tempParts1);
+    Serial.print("\t");
+        
+    //Check Pressure Sensor
+    float pressure = myPressure.readPressure();       //**change all to bytes
+
+    byte p0 = byte(pressure/1000.00);
+    byte p1 = byte((pressure-(p0*1000.00))/10.00);
+    byte p2 = byte(pressure-(p0*1000.00)-(p1*10.00));
+    
+  
+    
+    Serial.print(pressure);
+    Serial.print("\t");
+    Serial.print((p0));
+    Serial.print("\t");
+    Serial.print((p1)); 
+    Serial.print("\t");
+    Serial.println((p2)); 
+    
+    IntToByte(pressure, pressureParts, 100);
     IntToByte(GPS.milliseconds, GPSmilli, 1);
     byte latitude = (byte)(GPS.latitude, 1);
     byte longitude = (byte)(GPS.longitude, 1);
     byte alt = (byte)(GPS.altitude);
     //**********************************************************************TRANSMIT TO SLAVE
     Wire.beginTransmission(8); // transmit to device #8
-    Wire.write(latitude);      //1
-    Wire.write(longitude);    //2
-    Wire.write(alt);          //3
+    //Wire.write(latitude);      //1
+    //Wire.write(longitude);    //2
+    //Wire.write(alt);          //3
     Wire.write(GPS.month);    //4
     Wire.write(GPS.day);      //5
     Wire.write(GPS.year);     //6
     Wire.write(GPS.hour);     //7
     Wire.write(GPS.minute);   //8
     Wire.write(GPS.seconds);  //9
-    Wire.write(GPSmilli[0]);//10
-    Wire.write(GPSmilli[1]);//11
-    Wire.write(humid);        //12
-    Wire.write(tempParts[1]);     //13
-    Wire.write(tempParts[2]);     //14
-    Wire.write(pressureParts[0]);        //15
-    Wire.write(pressureParts[1]);        //16
-    Wire.write(pressureParts[2]);        //17
+    Wire.write(GPS.milliseconds); //10
+    Wire.write(humid);        //11
+    Wire.write(tempParts0);     //12
+    Wire.write(tempParts1);  //13
+    Wire.write(p0);        //14
+    Wire.write(p1);        //15
+    Wire.write(p2);        //16
     Wire.endTransmission();    // stop transmitting
   }
   //**************************************************************************************

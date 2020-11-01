@@ -250,15 +250,17 @@ void calcWeather(int &winddir, float &currentSpeed, float &humidity, float &temp
 
 //Returns the voltage of the light sensor based on the 3.3V rail
 //This allows us to ignore what VCC might be (an Arduino plugged into USB has VCC of 4.5 to 5.2V)
+
+//New version with Alton's irradiance meter on A1
 float get_light_level()
 {
-  float operatingVoltage = analogRead(REFERENCE_3V3);
+  //float operatingVoltage = analogRead(REFERENCE_3V3);
 
   float lightSensor = analogRead(LIGHT);
 
-  operatingVoltage = 3.3 / operatingVoltage; //The reference voltage is 3.3V
+  //operatingVoltage = 3.3 / operatingVoltage; //The reference voltage is 3.3V
 
-  lightSensor = operatingVoltage * lightSensor;
+  //lightSensor = operatingVoltage * lightSensor;
 
   return (lightSensor);
 }

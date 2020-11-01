@@ -2,6 +2,8 @@
 GUSTAV Weather Station
 Original By:  Nathan Paes
 GPS from tinygps
+
+//New Nov. 2020 version with Alton's irradiance meter on A1
 */
 
 #include <Wire.h> //I2C needed for sensors

@@ -71,13 +71,13 @@ void setup()
   //  Serial.println("| FLIGHT        |       |                                           |");
   //  Serial.println("+---------------+       +-------------------------------------------+\n");
 
-  Serial.println("\n+---------------+");
-  Serial.println("| RYERSON       |");
-  Serial.println("| APPLIED       |");
-  Serial.println("| AERODYNAMICS  |");
-  Serial.println("| LABORATORY OF |");
-  Serial.println("| FLIGHT        |");
-  Serial.println("+---------------+\n");
+  //Serial.println("\n+---------------+");
+  //Serial.println("| RYERSON       |");
+  //Serial.println("| APPLIED       |");
+  //Serial.println("| AERODYNAMICS  |");
+  //Serial.println("| LABORATORY OF |");
+  //Serial.println("| FLIGHT        |");
+  //Serial.println("+---------------+\n");
 
   pinMode(STAT1, OUTPUT); //Status LED Blue
   pinMode(STAT2, OUTPUT); //Status LED Green
@@ -165,7 +165,7 @@ void loop()
 
   //Keep track of which minute it is
 
-  if (millis() - weathertimer >= 500) {
+  if (millis() - weathertimer >= 1000) {
 
     float humidity = 0; // [%]
     float tempf = 0; // [%]
@@ -256,9 +256,19 @@ void calcWeather(int &winddir, float &currentSpeed, float &humidity, float &temp
 //New version with Alton's irradiance meter on A1
 float get_light_level()
 {
-  //float operatingVoltage = analogRead(REFERENCE_3V3);
 
-  float lightSensor = analogRead(LIGHT);
+
+  float total = 0.0;
+  for (int i = 0;  i < 50; i++) {
+    total = total + analogRead(LIGHT);
+    delay(2);
+  }
+
+  float lightSensor = total / 50.0 / 1023.0 * 5.0; // 0.0-5.0V
+// lightSensor * 1000000.0 / 13.75 / 2.1 / 151.0;
+  lightSensor = lightSensor * 229.351223; 
+
+  //float operatingVoltage = analogRead(REFERENCE_3V3);
 
   //operatingVoltage = 3.3 / operatingVoltage; //The reference voltage is 3.3V
 
